@@ -5,8 +5,8 @@ import (
 	"github.com/muhammadsaefulr/otakudesu-scrape/repository"
 )
 
-func GetAnime() ([]gin.H, error) {
-	return repository.GetAnime()
+func GetListAnime() ([]gin.H, error) {
+	return repository.GetListAnime()
 }
 
 func GetAnimeByTitle(title string) ([]gin.H, error) {

@@ -6,6 +6,6 @@ import (
 )
 
 func InitRoutes(router *gin.Engine) {
-	router.GET("/anime", handlers.GetAnime)
+	router.GET("/anime", handlers.GetListAnime)
 	router.GET("/anime/search", handlers.GetAnimeSearch)
 }

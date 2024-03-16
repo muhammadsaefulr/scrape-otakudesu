@@ -7,8 +7,8 @@ import (
 	"github.com/muhammadsaefulr/otakudesu-scrape/usecase"
 )
 
-func GetAnime(c *gin.Context) {
-	animes, err := usecase.GetAnime()
+func GetListAnime(c *gin.Context) {
+	animes, err := usecase.GetListAnime()
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})

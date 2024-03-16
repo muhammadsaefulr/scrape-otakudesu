@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"net/http"
 
 	"strings"
 
@@ -9,10 +10,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetAnime() ([]gin.H, error) {
+func GetListAnime() ([]gin.H, error) {
 	url := "https://otakudesu.cloud/"
 
-	doc, err := goquery.NewDocument(url)
+	resp, err := http.Get(url)
+
+	if err != nil {
+		panic(err)
+	}
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +43,13 @@ func GetAnime() ([]gin.H, error) {
 func GetAnimeByTitle(title string) ([]gin.H, error) {
 	url := fmt.Sprintf("https://otakudesu.cloud/?s=%s&post_type=anime", title)
 
-	doc, err := goquery.NewDocument(url)
+	resp, err := http.Get(url)
+
+	if err != nil {
+		panic(err)
+	}
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
 		return nil, err
 	}
