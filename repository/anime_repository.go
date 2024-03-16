@@ -2,7 +2,9 @@ package repository
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"regexp"
 
 	"strings"
 
@@ -16,7 +18,7 @@ func GetListAnime() ([]gin.H, error) {
 	resp, err := http.Get(url)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
@@ -46,7 +48,7 @@ func GetAnimeByTitle(title string) ([]gin.H, error) {
 	resp, err := http.Get(url)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
@@ -68,7 +70,7 @@ func GetAnimeByTitle(title string) ([]gin.H, error) {
 		s.Find(".set b:contains('Genres')").Parent().Find("a").Each(func(i int, genre *goquery.Selection) {
 			genres = append(genres, genre.Text())
 		})
-		// Mendapatkan status anime
+
 		status := s.Find(".set b:contains('Status')").Parent().Text()
 		// Mendapatkan rating anime
 		rating := s.Find(".set b:contains('Rating')").Parent().Text()
@@ -88,4 +90,81 @@ func GetAnimeByTitle(title string) ([]gin.H, error) {
 	})
 
 	return animeResults, nil
+}
+
+func GetVideoPlay(url string) (string, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	var videoLink string
+	var RawLink string
+
+	doc.Find(".responsive-embed-stream").Each(func(i int, s *goquery.Selection) {
+		vidLink, _ := s.Find("iframe").Attr("src")
+		videoLink = vidLink
+	})
+
+	rawUrl, err := http.Get(videoLink)
+
+	if err != nil {
+		panic(err)
+	}
+
+	re := regexp.MustCompile(`'file':'(.*?)'`)
+
+	body, err := ioutil.ReadAll(rawUrl.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	matches := re.FindStringSubmatch(string(body))
+
+	if len(matches) > 1 {
+		RawLink = string(matches[1])
+	}
+
+	return RawLink, nil
+}
+
+func GetAnime(url string) ([]gin.H, error) {
+	resp, err := http.Get(fmt.Sprintf(`https://otakudesu.cloud/anime/%s`, url))
+
+	if err != nil {
+		return nil, err
+	}
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var animeResults []gin.H
+
+	doc.Find(".episodelist li").Each(func(i int, s *goquery.Selection) {
+		title := s.Find("span a").Text()
+		vidSrc, _ := s.Find("span a").Attr("href")
+
+		vidPlay, err := GetVideoPlay(vidSrc)
+
+		if err != nil {
+			fmt.Sprintf(err.Error())
+		}
+
+		animeResults = append(animeResults, gin.H{
+			"Title":   title,
+			"vidLink": vidSrc,
+			"vidPlay": vidPlay,
+		})
+	})
+
+	return animeResults, nil
+
 }

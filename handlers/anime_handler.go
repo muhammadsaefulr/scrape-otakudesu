@@ -35,3 +35,15 @@ func GetAnimeSearch(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"animes": animes})
 
 }
+
+func GetAnime(c *gin.Context) {
+	title := c.Param("judulAnime")
+
+	animes, err := usecase.GetAnime(title)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"animes": animes})
+}

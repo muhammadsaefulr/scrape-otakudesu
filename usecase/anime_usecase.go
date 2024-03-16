@@ -12,3 +12,7 @@ func GetListAnime() ([]gin.H, error) {
 func GetAnimeByTitle(title string) ([]gin.H, error) {
 	return repository.GetAnimeByTitle(title)
 }
+
+func GetAnime(url string) ([]gin.H, error) {
+	return repository.GetAnime(url)
+}
