@@ -131,7 +131,7 @@ func GetVideoPlay(url string) (string, error) {
 		RawLink = string(matches[1])
 	}
 
-	return RawLink, nil
+	return videoLink, nil
 }
 
 func GetAnime(url string) ([]gin.H, error) {
